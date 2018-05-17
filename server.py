@@ -1,33 +1,32 @@
 import socket
-
-import fcntl
-import struct
+import threading
 
 
-def get_ip_address(ifname):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
+class Server(object):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind((self.host, self.port))
 
+    def listen(self):
+        self.sock.listen(1)
+        client, address = self.sock.accept()
+        client.settimeout(60)
+        threading.Thread(target=self.listenToClient, args=(client, address)).start()
 
-HOST = ""
-PORT = 8000
-
-print("Waiting clients . . .")
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((HOST, PORT))
-s.listen(1)
-conn, addr = s.accept()
-print("Connected by", addr)
-while True:
-    data = conn.recv(1024)
-    if not data:
-        break
-    print(data)
-    conn.sendall(data)
-conn.close()
-
+    def listenToClient(self, client, address):
+        size = 1024
+        while True:
+            try:
+                data = client.recv(size)
+                if data:
+                    # Set the response to echo back the recieved data
+                    response = data
+                    client.send(response)
+                else:
+                    raise socket.error('Client disconnected')
+            except:
+                client.close()
+                return False

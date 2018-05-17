@@ -1,16 +1,16 @@
-import tkinter as tk
+# -*- coding: utf-8 -*-
 
-root = tk.Tk()
+# Form implementation generated from reading ui file 'mainwindow.ui'
+#
+# Created by: PyQt5 UI code generator 5.10.1
+#
+# WARNING! All changes made in this file will be lost!
 
-receiveFrame = tk.Frame(root)
-receiveFrame.pack(side=tk.LEFT)
+from PyQt5 import QtWidgets
+from mainFrame import MainFrame
 
-attackFrame = tk.Frame(root)
-attackFrame.pack(side=tk.RIGHT)
-
-username = tk.Label(root, text="Username: ")
-usernameEntry = tk.Entry(root)
-
-
-
-root.mainloop()
+if __name__ == '__main__':
+    app = QtWidgets.QApplication([])
+    window = MainFrame()
+    window.show()
+    app.exec_()
