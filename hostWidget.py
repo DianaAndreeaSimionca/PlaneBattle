@@ -14,9 +14,12 @@ class HostWidget(QtWidgets.QWidget):
         self.parent = parent
 
         ni.ifaddresses('en0')
-        self.ip = ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
 
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.ip = "Your IP Address: " + ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        except KeyError:
+            self.ip = "There is a problem try again. . ."
 
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 811, 521))
@@ -57,7 +60,10 @@ class HostWidget(QtWidgets.QWidget):
         self.wait_for_client()
 
     def back_button_clicked(self):
-        self.socket.close()
+        try:
+            self.socket.close()
+        except AttributeError as e:
+            print("Catch an error. . .")
         self.parent.back_button_clicked()
 
     def wait_for_client(self):
@@ -94,8 +100,10 @@ class HostWidget(QtWidgets.QWidget):
             print('Catch the error')
             self.socket.close()
             return False
+        except AttributeError as e:
+            return False
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.label.setText(_translate("Form", "Your IP Address: ") + self.ip)
+        self.label.setText(self.ip)
         self.pushButton.setText(_translate("Form", "Back"))
