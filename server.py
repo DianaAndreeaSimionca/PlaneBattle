@@ -30,3 +30,5 @@ class Server(object):
             except:
                 client.close()
                 return False
+
+Server('127.0.0.1', 8000).listen()

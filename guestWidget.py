@@ -67,7 +67,7 @@ class GuestWidget(QtWidgets.QWidget):
         print('Test function')
         try:
             conn = bluelet.connect(self.lineEdit.text(), 8000)
-            self.parent.conn = conn
+            self.parent.conn = conn.value
             print("Connection succed")
             self.parent.goto_prepare_battle()
         except (TimeoutError, ConnectionRefusedError, ConnectionAbortedError, ConnectionError) as e:

@@ -12,6 +12,7 @@ class PrepareBattle(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(PrepareBattle, self).__init__(parent)
+        self.threadpool = QThreadPool()
         layout = QtWidgets.QHBoxLayout()
         self.parent = parent
 
@@ -115,7 +116,7 @@ class PrepareBattle(QtWidgets.QWidget):
         layout.addWidget(self.verticalLayoutWidget)
         self.setLayout(layout)
 
-        #self.wait_for_message()
+        self.wait_for_message()
 
     def click_battle_now(self):
         print('Battle')
@@ -140,8 +141,7 @@ class PrepareBattle(QtWidgets.QWidget):
         worker.signals.finished.connect(self.thread_complete)
         worker.signals.progress.connect(self.progress_fn)
 
-        threadpool = QThreadPool()
-        threadpool.start(worker)
+        self.threadpool.start(worker)
 
     def progress_fn(self, output):
         print("%s" % output)
@@ -154,11 +154,12 @@ class PrepareBattle(QtWidgets.QWidget):
     def thread_complete(self):
         print("THREAD COMPLETE!")
 
-    def receive_message(self):
-        size = 1024
+    def receive_message(self, progress_callback):
         try:
-            data = self.parent.conn.recv()
-        except:
+            progress_callback.emit('Waiting for message. . .')
+            data = self.parent.conn.recv(1024).fire()
+            print(data)
+        except Exception as e:
             data = 'NULL'
         finally:
             return data

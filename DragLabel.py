@@ -25,7 +25,6 @@ class DragLabel(QtWidgets.QLabel):
 
     def __init__(self, view, graphics_scene, id):
         super().__init__()
-        print('Val: ', 1 << 0)
 
         for i in range(16):
             for j in range(16):

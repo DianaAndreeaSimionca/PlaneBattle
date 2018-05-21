@@ -7,8 +7,8 @@ def connecho():
     game_finish = False
     while ~game_finish:
         yield c.send("Ana are mere".encode())
-        data = yield c.recv(1024)
-        print("SERVER:", data.decode('utf-8'))
+        data = c.recv(1024)
+        print("SERVER:", data)
 
 
 def main():

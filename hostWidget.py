@@ -10,16 +10,21 @@ from Worker import Worker
 class HostWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(HostWidget, self).__init__(parent)
+        self.threadpool = QThreadPool()
         layout = QtWidgets.QHBoxLayout()
         self.parent = parent
 
-        ni.ifaddresses('en0')
+        print(ni.interfaces())
+        ni.ifaddresses('{784C80FC-D190-4211-9364-6B425275A962}')
 
-        try:
-            self.ip = "Your IP Address: " + ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        except KeyError:
-            self.ip = "There is a problem try again. . ."
+        for iface in ni.interfaces():
+            ni.ifaddresses(iface)
+            try:
+                self.ip = "Your IP Address: " + ni.ifaddresses(iface)[ni.AF_INET][0]['addr']
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                break;
+            except KeyError:
+                self.ip = "There is a problem try again. . ."
 
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 811, 521))
@@ -72,7 +77,6 @@ class HostWidget(QtWidgets.QWidget):
         worker.signals.finished.connect(self.thread_complete)
         worker.signals.progress.connect(self.progress_fn)
 
-        self.threadpool = QThreadPool()
         self.threadpool.start(worker)
 
     def progress_fn(self, output):
