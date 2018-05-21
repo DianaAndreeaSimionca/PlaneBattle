@@ -2,6 +2,8 @@ import socket
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import QThreadPool
+from PyQt5.QtWidgets import QMessageBox
+
 from GraphicsScene import GraphicsScene
 from Worker import Worker
 
@@ -127,10 +129,14 @@ class BattleField(QtWidgets.QWidget):
                                                         row * self.side + self.side - 2, pen)
                     self.graphics_scene_defense.addLine(column * self.side + self.side - 2, row * self.side + 2,
                                                         column * self.side + 2, row * self.side + self.side - 2, pen)
-                    if self.parent.board_plane[row][column]:
-                        str_output = 'Result;Shot:Hit;Row:' + str(row) + ";Column:" + str(column)
+                    if self.parent.board_plane[column][row]:
+                        str_output = 'Result;Shot:Hit;Row:' + str(row) + ';Column:' + str(column)
                     else:
                         str_output = 'Result;Shot:Miss;Row:' + str(row) + ";Column:" + str(column)
+
+                    if self.finish_match():
+                        str_output = str_output + ';Match:Won'
+
                     if type(self.parent.conn) is socket.socket:
                         self.parent.conn.send(str_output.encode())
                     else:
@@ -140,8 +146,20 @@ class BattleField(QtWidgets.QWidget):
                     result = tokens[1].split(':')[1]
                     row = int(tokens[2].split(':')[1])
                     column = int(tokens[3].split(':')[1])
+                    if len(tokens) == 5:
+                        match = tokens[4].split(':')
+                        if match[1] == 'Won':
+                            print('I Won')
+                            msg = QMessageBox()
+                            msg.setIcon(QMessageBox.Information)
+                            msg.setWindowTitle("Congratulations")
+                            msg.setText("Congratulations! You wan the match.")
+                            msg.setStandardButtons(QMessageBox.Ok)
+                            msg.exec_()
+
                     if result == 'Hit':
                         pen = QtGui.QPen(QtCore.Qt.red)
+                        self.parent.board_plane[column][row] = False
                     else:
                         pen = QtGui.QPen(QtCore.Qt.green)
 
@@ -158,6 +176,13 @@ class BattleField(QtWidgets.QWidget):
 
     def thread_complete(self):
         print("THREAD COMPLETE!")
+
+    def finish_match(self):
+        for i in range(16):
+            for j in range(16):
+                if self.parent.board_plane[i][j]:
+                    return False
+        return True
 
     def receive_shot(self, progress_callback):
         try:
