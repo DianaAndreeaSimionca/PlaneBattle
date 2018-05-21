@@ -160,11 +160,14 @@ class PrepareBattle(QtWidgets.QWidget):
 
     def print_output(self, result):
         if result:
-            if result.decode('utf-8') == 'Im set':
-                self.opponent_player = True
-                if self.opponent_player and self.self_player:
-                    print('Battle Time')
-                    self.parent.goto_battle_field()
+            try:
+                if result.decode('utf-8') == 'Im set':
+                    self.opponent_player = True
+                    if self.opponent_player and self.self_player:
+                        print('Battle Time')
+                        self.parent.goto_battle_field()
+            except Exception as e:
+                print(e)
 
     def thread_complete(self):
         print("THREAD COMPLETE!")
