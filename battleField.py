@@ -19,6 +19,8 @@ class BattleField(QtWidgets.QWidget):
         super(BattleField, self).__init__(parent)
         self.parent = parent
 
+        self.threadpool = QThreadPool()
+
         layout = QtWidgets.QHBoxLayout()
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 791, 511))
@@ -80,14 +82,17 @@ class BattleField(QtWidgets.QWidget):
 
     def shot_bullet(self, event):
         try:
-            row = event.scenePos().y()
-            column = event.scenePos().x()
+            row = int(event.scenePos().y() / 24)
+            column = int(event.scenePos().x() / 24)
 
+            strOut = ('Fire;Row:' + str(row) + ';Column:' + str(column))
             if 0 <= row < 16 and 0 <= column < 16:
                 if type(self.parent.conn) is socket.socket:
-                    self.parent.conn.send(('Fire;Row:' + row + ';Column:' + column).encode())
+                    self.parent.conn.send(strOut.encode())
+                    self.wait_for_shot()
                 else:
-                    self.parent.conn.send(('Fire;Row:' + row + ';Column:' + column).encode()).fire()
+                    self.parent.conn.send(strOut.encode()).fire()
+                    self.wait_for_shot()
         except Exception as e:
             print(e)
 
@@ -107,15 +112,37 @@ class BattleField(QtWidgets.QWidget):
             try:
                 result = result.decode('utf-8')
                 tokens = result.split(';')
-                row = tokens[1].split(':')
-                column = tokens[2].split(':')
 
                 if tokens[0] == 'Fire':
+                    row = int(tokens[1].split(':')[1])
+                    column = int(tokens[2].split(':')[1])
                     pen = QtGui.QPen(QtCore.Qt.darkCyan)
-                    self.graphics_scene_defense.addLine(row + 2, column + 2, row + self.side - 2,
-                                                        column + self.side - 2, pen)
-                    self.graphics_scene_defense.addLine(row + 2, column + self.side - 2,
-                                                        row + self.side - 2, column + 2,pen)
+                    self.graphics_scene_defense.addLine(row * self.side + 2, column * self.side + 2,
+                                                        row * self.side + self.side - 2,
+                                                        column * self.side + self.side - 2, pen)
+                    self.graphics_scene_defense.addLine(row * self.side + 2, column * self.side + self.side - 2,
+                                                        row * self.side + self.side - 2, column * self.side + 2, pen)
+
+                    str_output = 'Result:Hit;Row:' + str(row) + ";Column:" + str(column)
+                    if type(self.parent.conn) is socket.socket:
+                        self.parent.conn.send(str_output.encode())
+                    else:
+                        self.parent.conn.send(str_output.encode()).fire()
+                elif tokens[0] == 'Result':
+                    result = tokens[0].split(':')
+                    row = int(tokens[1].split(':')[1])
+                    column = int(tokens[2].split(':')[1])
+                    if result == 'Hit':
+                        pen = QtGui.QPen(QtCore.Qt.red)
+                    else:
+                        pen = QtGui.QPen(QtCore.Qt.green)
+
+                    self.graphics_scene_attack.addLine(row * self.side + 2, column * self.side + 2,
+                                                       row * self.side + self.side - 2,
+                                                       column * self.side + self.side - 2, pen)
+                    self.graphics_scene_attack.addLine(row * self.side + 2, column * self.side + self.side - 2,
+                                                       row * self.side + self.side - 2, column * self.side + 2, pen)
+
             except Exception as e:
                 print(e)
 
