@@ -136,6 +136,12 @@ class BattleField(QtWidgets.QWidget):
                         str_output = 'Result;Shot:Miss;Row:' + str(row) + ";Column:" + str(column)
 
                     if self.finish_match():
+                        str_output = str_output + ';Match:Won'
+                        if type(self.parent.conn) is socket.socket:
+                            self.parent.conn.send(str_output.encode())
+                        else:
+                            self.parent.conn.send(str_output.encode()).fire()
+
                         msg = QMessageBox()
                         msg.setIcon(QMessageBox.Information)
                         msg.setWindowTitle("Too bad")
@@ -143,10 +149,6 @@ class BattleField(QtWidgets.QWidget):
                         msg.setStandardButtons(QMessageBox.Ok)
                         msg.exec_()
 
-                    if type(self.parent.conn) is socket.socket:
-                        self.parent.conn.send(str_output.encode())
-                    else:
-                        self.parent.conn.send(str_output.encode()).fire()
                     self.next_move_shot = True
                 elif tokens[0] == 'Result':
                     result = tokens[1].split(':')[1]
