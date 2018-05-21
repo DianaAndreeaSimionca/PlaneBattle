@@ -129,13 +129,19 @@ class BattleField(QtWidgets.QWidget):
                                                         row * self.side + self.side - 2, pen)
                     self.graphics_scene_defense.addLine(column * self.side + self.side - 2, row * self.side + 2,
                                                         column * self.side + 2, row * self.side + self.side - 2, pen)
-                    if self.parent.board_plane[column][row]:
+                    if self.parent.board_plane[row][column]:
                         str_output = 'Result;Shot:Hit;Row:' + str(row) + ';Column:' + str(column)
+                        self.parent.board_plane[row][column] = False
                     else:
                         str_output = 'Result;Shot:Miss;Row:' + str(row) + ";Column:" + str(column)
 
                     if self.finish_match():
-                        str_output = str_output + ';Match:Won'
+                        msg = QMessageBox()
+                        msg.setIcon(QMessageBox.Information)
+                        msg.setWindowTitle("Too bad")
+                        msg.setText("Too bad! You lost the match.")
+                        msg.setStandardButtons(QMessageBox.Ok)
+                        msg.exec_()
 
                     if type(self.parent.conn) is socket.socket:
                         self.parent.conn.send(str_output.encode())
@@ -149,17 +155,15 @@ class BattleField(QtWidgets.QWidget):
                     if len(tokens) == 5:
                         match = tokens[4].split(':')
                         if match[1] == 'Won':
-                            print('I Won')
                             msg = QMessageBox()
                             msg.setIcon(QMessageBox.Information)
                             msg.setWindowTitle("Congratulations")
-                            msg.setText("Congratulations! You wan the match.")
+                            msg.setText("Congratulations! You won the match.")
                             msg.setStandardButtons(QMessageBox.Ok)
                             msg.exec_()
 
                     if result == 'Hit':
                         pen = QtGui.QPen(QtCore.Qt.red)
-                        self.parent.board_plane[column][row] = False
                     else:
                         pen = QtGui.QPen(QtCore.Qt.green)
 
