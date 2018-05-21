@@ -21,7 +21,7 @@ class PrepareBattle(QtWidgets.QWidget):
         self.parent = parent
 
         self.opponent_player = False
-        self.ally_player = True
+        self.ally_player = False
 
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 791, 511))
@@ -129,7 +129,10 @@ class PrepareBattle(QtWidgets.QWidget):
         if self.graphics_scene.valid_plane_position != 0:
             self.ally_player = True
             try:
-                self.parent.conn.send('Im set'.encode())
+                if type(self.parent.conn) is socket.socket:
+                    self.parent.conn.send('Im set'.encode())
+                else:
+                    self.parent.conn.send('Im set'.encode()).fire()
             except Exception as e:
                 print(e)
 
@@ -165,7 +168,7 @@ class PrepareBattle(QtWidgets.QWidget):
                     self.opponent_player = True
                     if self.opponent_player and self.ally_player:
                         print('Battle Time')
-                        self.parent.goto_battle_field()
+                        #self.parent.goto_battle_field()
             except Exception as e:
                 print(e)
 
@@ -181,6 +184,7 @@ class PrepareBattle(QtWidgets.QWidget):
                 data = self.parent.conn.recv(1024).fire()
         except Exception as e:
             data = 'NULL'
+            print(e)
         finally:
             return data
 
