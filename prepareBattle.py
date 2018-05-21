@@ -1,3 +1,5 @@
+import socket
+
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import QThreadPool
 from PyQt5.QtWidgets import QMessageBox
@@ -9,12 +11,14 @@ from Worker import Worker
 
 class PrepareBattle(QtWidgets.QWidget):
     graphics_scene = None
+    other_player_is_set = None
 
     def __init__(self, parent=None):
         super(PrepareBattle, self).__init__(parent)
         self.threadpool = QThreadPool()
         layout = QtWidgets.QHBoxLayout()
         self.parent = parent
+        self.other_player_is_set = False
 
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 791, 511))
@@ -120,10 +124,15 @@ class PrepareBattle(QtWidgets.QWidget):
 
     def click_battle_now(self):
         print('Battle')
-        if self.graphics_scene.valid_plane_position == 31:
-            self.parent.conn.send('Im set')
+        if self.graphics_scene.valid_plane_position != 0:
+            try:
+                self.parent.conn.send('Im set'.encode())
+            except Exception as e:
+                print(e)
             if self.other_player_is_set:
                 print('Battle Time')
+            else:
+                print('Im ready')
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
@@ -157,8 +166,10 @@ class PrepareBattle(QtWidgets.QWidget):
     def receive_message(self, progress_callback):
         try:
             progress_callback.emit('Waiting for message. . .')
-            data = self.parent.conn.recv(1024).fire()
-            print(data)
+            if type(self.parent.conn) is socket.socket:
+                data = self.parent.conn.recv(1024)
+            else:
+                data = self.parent.conn.recv(1024).fire()
         except Exception as e:
             data = 'NULL'
         finally:

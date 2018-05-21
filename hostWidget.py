@@ -14,9 +14,6 @@ class HostWidget(QtWidgets.QWidget):
         layout = QtWidgets.QHBoxLayout()
         self.parent = parent
 
-        print(ni.interfaces())
-        ni.ifaddresses('{784C80FC-D190-4211-9364-6B425275A962}')
-
         for iface in ni.interfaces():
             ni.ifaddresses(iface)
             try:
