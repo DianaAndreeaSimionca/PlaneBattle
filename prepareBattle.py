@@ -12,7 +12,7 @@ from Worker import Worker
 class PrepareBattle(QtWidgets.QWidget):
     graphics_scene = None
     opponent_player = None
-    self_player = None
+    ally_player = None
 
     def __init__(self, parent=None):
         super(PrepareBattle, self).__init__(parent)
@@ -21,7 +21,7 @@ class PrepareBattle(QtWidgets.QWidget):
         self.parent = parent
 
         self.opponent_player = False
-        self.self_player = False
+        self.ally_player = True
 
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 791, 511))
@@ -127,13 +127,13 @@ class PrepareBattle(QtWidgets.QWidget):
 
     def click_battle_now(self):
         if self.graphics_scene.valid_plane_position != 0:
-            self.self_player = True
+            self.ally_player = True
             try:
                 self.parent.conn.send('Im set'.encode())
             except Exception as e:
                 print(e)
 
-            if self.opponent_player and self.self_player:
+            if self.opponent_player and self.ally_player:
                 print('Battle Time')
                 self.parent.goto_battle_field()
         else:
@@ -163,7 +163,7 @@ class PrepareBattle(QtWidgets.QWidget):
             try:
                 if result.decode('utf-8') == 'Im set':
                     self.opponent_player = True
-                    if self.opponent_player and self.self_player:
+                    if self.opponent_player and self.ally_player:
                         print('Battle Time')
                         self.parent.goto_battle_field()
             except Exception as e:
