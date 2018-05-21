@@ -11,14 +11,17 @@ from Worker import Worker
 
 class PrepareBattle(QtWidgets.QWidget):
     graphics_scene = None
-    other_player_is_set = None
+    opponent_player = None
+    self_player = None
 
     def __init__(self, parent=None):
         super(PrepareBattle, self).__init__(parent)
         self.threadpool = QThreadPool()
         layout = QtWidgets.QHBoxLayout()
         self.parent = parent
-        self.other_player_is_set = False
+
+        self.opponent_player = False
+        self.self_player = False
 
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 791, 511))
@@ -124,14 +127,14 @@ class PrepareBattle(QtWidgets.QWidget):
 
     def click_battle_now(self):
         if self.graphics_scene.valid_plane_position != 0:
+            self.self_player = True
             try:
                 self.parent.conn.send('Im set'.encode())
             except Exception as e:
                 print(e)
-            if self.other_player_is_set:
+
+            if self.opponent_player and self.self_player:
                 print('Battle Time')
-            else:
-                print('Im ready')
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
@@ -157,10 +160,10 @@ class PrepareBattle(QtWidgets.QWidget):
     def print_output(self, result):
         if result:
             if result.decode('utf-8') == 'Im set':
-                if self.other_player_is_set:
+                if self.opponent_player and self.self_player:
                     print('Battle Time')
                 else:
-                    self.other_player_is_set = True
+                    self.opponent_player = True
             print(result)
 
     def thread_complete(self):
