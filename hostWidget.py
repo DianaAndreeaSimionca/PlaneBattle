@@ -72,8 +72,8 @@ class HostWidget(QtWidgets.QWidget):
         worker.signals.finished.connect(self.thread_complete)
         worker.signals.progress.connect(self.progress_fn)
 
-        threadpool = QThreadPool()
-        threadpool.start(worker)
+        self.threadpool = QThreadPool()
+        self.threadpool.start(worker)
 
     def progress_fn(self, output):
         print("%s" % output)
