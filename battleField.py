@@ -117,21 +117,21 @@ class BattleField(QtWidgets.QWidget):
                     row = int(tokens[1].split(':')[1])
                     column = int(tokens[2].split(':')[1])
                     pen = QtGui.QPen(QtCore.Qt.darkCyan)
-                    self.graphics_scene_defense.addLine(row * self.side + 2, column * self.side + 2,
-                                                        row * self.side + self.side - 2,
-                                                        column * self.side + self.side - 2, pen)
-                    self.graphics_scene_defense.addLine(row * self.side + 2, column * self.side + self.side - 2,
-                                                        row * self.side + self.side - 2, column * self.side + 2, pen)
+                    self.graphics_scene_defense.addLine(column * self.side + 2, row * self.side + 2,
+                                                        column * self.side + self.side - 2,
+                                                        row * self.side + self.side - 2, pen)
+                    self.graphics_scene_defense.addLine(column * self.side + self.side - 2, row * self.side + 2,
+                                                        column * self.side + 2, row * self.side + self.side - 2, pen)
 
-                    str_output = 'Result:Hit;Row:' + str(row) + ";Column:" + str(column)
+                    str_output = 'Result;Shot:Hit;Row:' + str(row) + ";Column:" + str(column)
                     if type(self.parent.conn) is socket.socket:
                         self.parent.conn.send(str_output.encode())
                     else:
                         self.parent.conn.send(str_output.encode()).fire()
                 elif tokens[0] == 'Result':
-                    result = tokens[0].split(':')
-                    row = int(tokens[1].split(':')[1])
-                    column = int(tokens[2].split(':')[1])
+                    result = tokens[1].split(':')[1]
+                    row = int(tokens[2].split(':')[1])
+                    column = int(tokens[3].split(':')[1])
                     if result == 'Hit':
                         pen = QtGui.QPen(QtCore.Qt.red)
                     else:
