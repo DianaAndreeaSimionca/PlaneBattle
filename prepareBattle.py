@@ -123,7 +123,6 @@ class PrepareBattle(QtWidgets.QWidget):
         self.wait_for_message()
 
     def click_battle_now(self):
-        print('Battle')
         if self.graphics_scene.valid_plane_position != 0:
             try:
                 self.parent.conn.send('Im set'.encode())
@@ -156,8 +155,12 @@ class PrepareBattle(QtWidgets.QWidget):
         print("%s" % output)
 
     def print_output(self, result):
-        print(result)
         if result:
+            if result.decode('utf-8') == 'Im set':
+                if self.other_player_is_set:
+                    print('Battle Time')
+                else:
+                    self.other_player_is_set = True
             print(result)
 
     def thread_complete(self):
@@ -174,7 +177,6 @@ class PrepareBattle(QtWidgets.QWidget):
             data = 'NULL'
         finally:
             return data
-
 
     def rotatePlane(self, arg):
         print('Test')

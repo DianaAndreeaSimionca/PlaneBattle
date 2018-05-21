@@ -95,6 +95,7 @@ class HostWidget(QtWidgets.QWidget):
             self.socket.bind(('', 8000))
             self.socket.listen(1)
             conn, addr = self.socket.accept()
+            conn.settimeout(60)
 
             return conn
         except (TimeoutError, ConnectionRefusedError, ConnectionAbortedError, ConnectionError, OSError) as e:
