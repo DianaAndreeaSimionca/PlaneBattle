@@ -198,6 +198,9 @@ class PrepareBattle(QtWidgets.QWidget):
                 for k in range(5):
                     if self.graphics_scene.board_plane[i][j][k]:
                         self.parent.board_plane[i][j] = True
+                        break
+                    else:
+                        self.parent.board_plane[i][j] = False
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate

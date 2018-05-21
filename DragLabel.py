@@ -35,13 +35,12 @@ class DragLabel(QtWidgets.QLabel):
         self.valid_position = True
 
         for i in range(8):
-            if not (0 <= column + dy[i] < 16 and
-                    0 <= row + dx[i] < 16):
+            if not (0 <= column + dy[i] < 16 and 0 <= row + dx[i] < 16):
                 self.valid_position = False
                 color = brushRed
             else:
                 for j in range(5):
-                    if self.graphicsScene.board_plane[column + dy[i]][row + dx[i]][j]:
+                    if self.graphicsScene.board_plane[row + dx[i]][column + dy[i]][j]:
                         self.valid_position = False
                         color = brushRed
 
@@ -49,9 +48,9 @@ class DragLabel(QtWidgets.QLabel):
             if 0 <= column + dy[i] < 16 and 0 <= row + dx[i] < 16:
                 if release_mouse:
                     if self.valid_position:
-                        self.graphicsScene.board_plane[column + dy[i]][row + dx[i]][self.obj_id] = True
+                        self.graphicsScene.board_plane[row + dx[i]][column + dy[i]][self.obj_id] = True
                 else:
-                    self.graphicsScene.board_plane[column + dy[i]][row + dx[i]][self.obj_id] = False
+                    self.graphicsScene.board_plane[row + dx[i]][column + dy[i]][self.obj_id] = False
 
                 r = QtCore.QRectF(QtCore.QPointF((column + dy[i]) * self.side, (row + dx[i]) * self.side),
                                   QtCore.QSizeF(self.side, self.side))
