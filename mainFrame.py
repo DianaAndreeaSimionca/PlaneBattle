@@ -4,6 +4,7 @@ from playerTypeWidget import PlayerTypeWidget
 from hostWidget import HostWidget
 from guestWidget import GuestWidget
 from prepareBattle import PrepareBattle
+from battleField import BattleField
 
 
 class MainFrame(QtWidgets.QMainWindow):
@@ -39,6 +40,11 @@ class MainFrame(QtWidgets.QMainWindow):
         prepare_widget = PrepareBattle(self)
         self.central_widget.addWidget(prepare_widget)
         self.central_widget.setCurrentWidget(prepare_widget)
+
+    def goto_battle_field(self):
+        battle_field = BattleField(self)
+        self.central_widget.addWidget(battle_field)
+        self.central_widget.setCurrentWidget(battle_field)
 
     def back_button_clicked(self):
         print('Back Button Clicked')

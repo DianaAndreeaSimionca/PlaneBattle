@@ -135,6 +135,7 @@ class PrepareBattle(QtWidgets.QWidget):
 
             if self.opponent_player and self.self_player:
                 print('Battle Time')
+                self.parent.goto_battle_field()
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
@@ -160,11 +161,10 @@ class PrepareBattle(QtWidgets.QWidget):
     def print_output(self, result):
         if result:
             if result.decode('utf-8') == 'Im set':
+                self.opponent_player = True
                 if self.opponent_player and self.self_player:
                     print('Battle Time')
-                else:
-                    self.opponent_player = True
-            print(result)
+                    self.parent.goto_battle_field()
 
     def thread_complete(self):
         print("THREAD COMPLETE!")
