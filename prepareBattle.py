@@ -1,9 +1,15 @@
-from PyQt5 import QtCore, QtWidgets, QtGui, Qt
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import QThreadPool
+from PyQt5.QtWidgets import QMessageBox
 
 from DragLabel import DragLabel
+from GraphicsScene import GraphicsScene
+from Worker import Worker
 
 
 class PrepareBattle(QtWidgets.QWidget):
+    graphics_scene = None
+
     def __init__(self, parent=None):
         super(PrepareBattle, self).__init__(parent)
         layout = QtWidgets.QHBoxLayout()
@@ -22,18 +28,17 @@ class PrepareBattle(QtWidgets.QWidget):
         self.graphicsView.setMouseTracking(True)
         self.graphicsView.setObjectName("graphicsView")
 
-        scene = QtWidgets.QGraphicsScene()
+        self.graphics_scene = GraphicsScene()
         self.graphicsView.setMouseTracking(True)
-        self.graphicsView.setScene(scene)
+        self.graphicsView.setScene(self.graphics_scene)
         pen = QtGui.QPen(QtCore.Qt.darkCyan)
 
         side = 24
-        #scene.remove
 
         for i in range(16):
             for j in range(16):
                 r = QtCore.QRectF(QtCore.QPointF(i * side, j * side), QtCore.QSizeF(side, side))
-                scene.addRect(r, pen)
+                self.graphics_scene.addRect(r, pen)
 
         self.horizontalLayout.addWidget(self.graphicsView)
         self.gridLayout = QtWidgets.QGridLayout()
@@ -41,7 +46,7 @@ class PrepareBattle(QtWidgets.QWidget):
 
         pixmap = QtGui.QPixmap("images/plane_0.png")
 
-        self.label_2 = DragLabel(self.verticalLayoutWidget, scene, 0)
+        self.label_2 = DragLabel(self.verticalLayoutWidget, self.graphics_scene, 0)
         self.label_2.setMinimumSize(QtCore.QSize(100, 100))
         self.label_2.setMaximumSize(QtCore.QSize(100, 100))
         self.label_2.setAcceptDrops(True)
@@ -51,7 +56,7 @@ class PrepareBattle(QtWidgets.QWidget):
         self.label_2.setObjectName("label_2")
         self.label_2.setMouseTracking(True)
         self.gridLayout.addWidget(self.label_2, 1, 1, 1, 1)
-        self.label_3 = DragLabel(self.verticalLayoutWidget, scene, 1)
+        self.label_3 = DragLabel(self.verticalLayoutWidget, self.graphics_scene, 1)
         self.label_3.setMinimumSize(QtCore.QSize(100, 100))
         self.label_3.setMaximumSize(QtCore.QSize(100, 100))
         self.label_3.setAcceptDrops(True)
@@ -61,7 +66,7 @@ class PrepareBattle(QtWidgets.QWidget):
         self.label_3.setObjectName("label_3")
         self.label_3.setMouseTracking(True)
         self.gridLayout.addWidget(self.label_3, 1, 0, 1, 1)
-        self.label_4 = DragLabel(self.verticalLayoutWidget, scene, 2)
+        self.label_4 = DragLabel(self.verticalLayoutWidget, self.graphics_scene, 2)
         self.label_4.setMinimumSize(QtCore.QSize(100, 100))
         self.label_4.setMaximumSize(QtCore.QSize(100, 100))
         self.label_4.setAcceptDrops(True)
@@ -71,7 +76,7 @@ class PrepareBattle(QtWidgets.QWidget):
         self.label_4.setObjectName("label_4")
         self.label_4.setMouseTracking(True)
         self.gridLayout.addWidget(self.label_4, 0, 1, 1, 1)
-        self.label = DragLabel(self.verticalLayoutWidget, scene, 3)
+        self.label = DragLabel(self.verticalLayoutWidget, self.graphics_scene, 3)
         self.label.setMinimumSize(QtCore.QSize(100, 100))
         self.label.setMaximumSize(QtCore.QSize(100, 100))
         self.label.setAcceptDrops(True)
@@ -81,7 +86,7 @@ class PrepareBattle(QtWidgets.QWidget):
         self.label.setObjectName("label")
         self.label.setMouseTracking(True)
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-        self.label_5 = DragLabel(self.verticalLayoutWidget, scene, 4)
+        self.label_5 = DragLabel(self.verticalLayoutWidget, self.graphics_scene, 4)
         self.label_5.setMinimumSize(QtCore.QSize(100, 100))
         self.label_5.setMaximumSize(QtCore.QSize(100, 100))
         self.label_5.setAcceptDrops(True)
@@ -100,6 +105,7 @@ class PrepareBattle(QtWidgets.QWidget):
         self.pushButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.pushButton.setMinimumSize(QtCore.QSize(100, 50))
         self.pushButton.setObjectName("pushButton")
+        self.pushButton.clicked.connect(self.click_battle_now)
         self.horizontalLayout_3.addWidget(self.pushButton)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
 
@@ -108,6 +114,55 @@ class PrepareBattle(QtWidgets.QWidget):
 
         layout.addWidget(self.verticalLayoutWidget)
         self.setLayout(layout)
+
+        #self.wait_for_message()
+
+    def click_battle_now(self):
+        print('Battle')
+        if self.graphics_scene.valid_plane_position == 31:
+            self.parent.conn.send('Im set')
+            if self.other_player_is_set:
+                print('Battle Time')
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+
+            msg.setWindowTitle("Error. . .")
+            msg.setText("Invalid values")
+            msg.setInformativeText("Not all the planes are set in the board")
+            msg.setStandardButtons(QMessageBox.Ok)
+
+            msg.exec_()
+
+    def wait_for_message(self):
+        worker = Worker(self.receive_message)
+        worker.signals.result.connect(self.print_output)
+        worker.signals.finished.connect(self.thread_complete)
+        worker.signals.progress.connect(self.progress_fn)
+
+        threadpool = QThreadPool()
+        threadpool.start(worker)
+
+    def progress_fn(self, output):
+        print("%s" % output)
+
+    def print_output(self, result):
+        print(result)
+        if result:
+            print(result)
+
+    def thread_complete(self):
+        print("THREAD COMPLETE!")
+
+    def receive_message(self):
+        size = 1024
+        try:
+            data = self.parent.conn.recv()
+        except:
+            data = 'NULL'
+        finally:
+            return data
+
 
     def rotatePlane(self, arg):
         print('Test')

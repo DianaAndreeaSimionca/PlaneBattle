@@ -25,6 +25,7 @@ class DragLabel(QtWidgets.QLabel):
 
     def __init__(self, view, graphics_scene, id):
         super().__init__()
+        print('Val: ', 1 << 0)
 
         for i in range(16):
             for j in range(16):
@@ -73,7 +74,6 @@ class DragLabel(QtWidgets.QLabel):
         self.array_of_current_pos.clear()
 
     def color_x_grade(self, x, y, release_mouse):
-        print("X: ", x, " Y: ", y, " S:", len(self.array_of_current_pos))
         self.row_obj = int((x + self.offsetX) / 24)
         self.column_obj = int((y + self.offsetY) / 24)
 
@@ -155,8 +155,10 @@ class DragLabel(QtWidgets.QLabel):
 
             self.color_x_grade(new_pos.y(), new_pos.x(), True)
             if self.valid_position:
+                self.graphicsScene.valid_plane_position = self.graphicsScene.valid_plane_position | (1 << self.obj_id)
                 self.move(self.column_obj * self.side - self.offsetY + 12, self.row_obj * self.side - self.offsetX + 3)
             else:
+                self.graphicsScene.valid_plane_position = self.graphicsScene.valid_plane_position & (not 1 << self.obj_id)
                 self.move(self.old_position)
             self.remove_array_obj()
 
