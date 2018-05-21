@@ -26,10 +26,10 @@ class MainFrame(QtWidgets.QMainWindow):
         self.central_widget.setCurrentWidget(logged_in_widget)
 
     def hostClicked(self):
-        #self.goto_prepare_battle()
-        host_widget = HostWidget(self)
-        self.central_widget.addWidget(host_widget)
-        self.central_widget.setCurrentWidget(host_widget)
+        self.goto_prepare_battle()
+        #host_widget = HostWidget(self)
+        #self.central_widget.addWidget(host_widget)
+        #self.central_widget.setCurrentWidget(host_widget)
 
     def guestClicked(self):
         guest_widget = GuestWidget(self)

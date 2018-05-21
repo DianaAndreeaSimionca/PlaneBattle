@@ -45,8 +45,8 @@ class BattleField(QtWidgets.QWidget):
         self.graphicsView_2 = QtWidgets.QGraphicsView(self.verticalLayoutWidget)
         self.graphicsView_2.setObjectName("graphicsView_2")
         self.graphics_scene_attack = GraphicsScene()
-        self.graphicsView.setMouseTracking(True)
-        self.graphicsView.setScene(self.graphics_scene_attack)
+        self.graphicsView_2.setMouseTracking(True)
+        self.graphicsView_2.setScene(self.graphics_scene_attack)
         pen = QtGui.QPen(QtCore.Qt.darkCyan)
         for i in range(16):
             for j in range(16):
