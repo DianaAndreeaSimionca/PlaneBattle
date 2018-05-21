@@ -2,9 +2,6 @@ import socket
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import QThreadPool
-from PyQt5.QtWidgets import QMessageBox
-
-from DragLabel import DragLabel
 from GraphicsScene import GraphicsScene
 from Worker import Worker
 
@@ -13,6 +10,8 @@ class BattleField(QtWidgets.QWidget):
     graphics_scene_defense = None
     graphics_scene_attack = None
 
+    next_move_shot = None
+
     side = 24
 
     def __init__(self, parent=None):
@@ -20,6 +19,7 @@ class BattleField(QtWidgets.QWidget):
         self.parent = parent
 
         self.threadpool = QThreadPool()
+        self.next_move_shot = False
 
         layout = QtWidgets.QHBoxLayout()
         self.verticalLayoutWidget = QtWidgets.QWidget()
@@ -74,6 +74,8 @@ class BattleField(QtWidgets.QWidget):
         self.setLayout(layout)
 
         if type(self.parent.conn) is socket.socket:
+            self.next_move_shot = True
+        else:
             self.wait_for_shot()
 
     def retranslateUi(self):
@@ -82,17 +84,20 @@ class BattleField(QtWidgets.QWidget):
 
     def shot_bullet(self, event):
         try:
-            row = int(event.scenePos().y() / 24)
-            column = int(event.scenePos().x() / 24)
+            if self.next_move_shot:
+                self.next_move_shot = False
 
-            strOut = ('Fire;Row:' + str(row) + ';Column:' + str(column))
-            if 0 <= row < 16 and 0 <= column < 16:
-                if type(self.parent.conn) is socket.socket:
-                    self.parent.conn.send(strOut.encode())
-                    self.wait_for_shot()
-                else:
-                    self.parent.conn.send(strOut.encode()).fire()
-                    self.wait_for_shot()
+                row = int(event.scenePos().y() / 24)
+                column = int(event.scenePos().x() / 24)
+
+                strout = ('Fire;Row:' + str(row) + ';Column:' + str(column))
+                if 0 <= row < 16 and 0 <= column < 16:
+                    if type(self.parent.conn) is socket.socket:
+                        self.parent.conn.send(strout.encode())
+                        self.wait_for_shot()
+                    else:
+                        self.parent.conn.send(strout.encode()).fire()
+                        self.wait_for_shot()
         except Exception as e:
             print(e)
 
@@ -137,11 +142,13 @@ class BattleField(QtWidgets.QWidget):
                     else:
                         pen = QtGui.QPen(QtCore.Qt.green)
 
-                    self.graphics_scene_attack.addLine(row * self.side + 2, column * self.side + 2,
-                                                       row * self.side + self.side - 2,
-                                                       column * self.side + self.side - 2, pen)
-                    self.graphics_scene_attack.addLine(row * self.side + 2, column * self.side + self.side - 2,
-                                                       row * self.side + self.side - 2, column * self.side + 2, pen)
+                    self.graphics_scene_attack.addLine(column * self.side + 2, row * self.side + 2,
+                                                       column * self.side + self.side - 2,
+                                                       row * self.side + self.side - 2, pen)
+                    self.graphics_scene_attack.addLine(column * self.side + self.side - 2, row * self.side + 2,
+                                                       column * self.side + 2, row * self.side + self.side - 2, pen)
+                    self.next_move_shot = True
+                    self.wait_for_shot()
 
             except Exception as e:
                 print(e)
