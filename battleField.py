@@ -127,12 +127,15 @@ class BattleField(QtWidgets.QWidget):
                                                         row * self.side + self.side - 2, pen)
                     self.graphics_scene_defense.addLine(column * self.side + self.side - 2, row * self.side + 2,
                                                         column * self.side + 2, row * self.side + self.side - 2, pen)
-
-                    str_output = 'Result;Shot:Hit;Row:' + str(row) + ";Column:" + str(column)
+                    if self.parent.board_plane[row][column]:
+                        str_output = 'Result;Shot:Hit;Row:' + str(row) + ";Column:" + str(column)
+                    else:
+                        str_output = 'Result;Shot:Miss;Row:' + str(row) + ";Column:" + str(column)
                     if type(self.parent.conn) is socket.socket:
                         self.parent.conn.send(str_output.encode())
                     else:
                         self.parent.conn.send(str_output.encode()).fire()
+                    self.next_move_shot = True
                 elif tokens[0] == 'Result':
                     result = tokens[1].split(':')[1]
                     row = int(tokens[2].split(':')[1])
@@ -147,7 +150,7 @@ class BattleField(QtWidgets.QWidget):
                                                        row * self.side + self.side - 2, pen)
                     self.graphics_scene_attack.addLine(column * self.side + self.side - 2, row * self.side + 2,
                                                        column * self.side + 2, row * self.side + self.side - 2, pen)
-                    self.next_move_shot = True
+                    self.next_move_shot = False
                     self.wait_for_shot()
 
             except Exception as e:

@@ -21,14 +21,9 @@ class DragLabel(QtWidgets.QLabel):
     offsetY = -30
     valid_position = None
     obj_id = None
-    board_game = [[0 for x in range(16)] for y in range(16)]
 
     def __init__(self, view, graphics_scene, id):
         super().__init__()
-
-        for i in range(16):
-            for j in range(16):
-                self.board_game[i][j] = [False, False, False, False, False]
 
         self.obj_id = id
         self.__mousePressPos = None
@@ -46,7 +41,7 @@ class DragLabel(QtWidgets.QLabel):
                 color = brushRed
             else:
                 for j in range(5):
-                    if self.board_game[column + dy[i]][row + dx[i]][j]:
+                    if self.graphicsScene.board_plane[column + dy[i]][row + dx[i]][j]:
                         self.valid_position = False
                         color = brushRed
 
@@ -54,9 +49,9 @@ class DragLabel(QtWidgets.QLabel):
             if 0 <= column + dy[i] < 16 and 0 <= row + dx[i] < 16:
                 if release_mouse:
                     if self.valid_position:
-                        self.board_game[column + dy[i]][row + dx[i]][self.obj_id] = True
+                        self.graphicsScene.board_plane[column + dy[i]][row + dx[i]][self.obj_id] = True
                 else:
-                    self.board_game[column + dy[i]][row + dx[i]][self.obj_id] = False
+                    self.graphicsScene.board_plane[column + dy[i]][row + dx[i]][self.obj_id] = False
 
                 r = QtCore.QRectF(QtCore.QPointF((column + dy[i]) * self.side, (row + dx[i]) * self.side),
                                   QtCore.QSizeF(self.side, self.side))

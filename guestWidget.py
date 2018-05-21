@@ -1,6 +1,5 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore, QtWidgets
 import bluelet
-from threading import Thread
 
 
 class GuestWidget(QtWidgets.QWidget):
@@ -64,7 +63,6 @@ class GuestWidget(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def connect_to_host(self):
-        print('Test function')
         try:
             conn = bluelet.connect(self.lineEdit.text(), 8000)
             self.parent.conn = conn.value

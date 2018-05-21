@@ -23,6 +23,8 @@ class PrepareBattle(QtWidgets.QWidget):
         self.opponent_player = False
         self.ally_player = False
 
+        self.parent.board_plane = [[0 for x in range(16)] for y in range(16)]
+
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 791, 511))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
@@ -138,6 +140,7 @@ class PrepareBattle(QtWidgets.QWidget):
 
             if self.opponent_player and self.ally_player:
                 print('Battle Time')
+                self.prepare_battle()
                 self.parent.goto_battle_field()
         else:
             msg = QMessageBox()
@@ -168,6 +171,7 @@ class PrepareBattle(QtWidgets.QWidget):
                     self.opponent_player = True
                     if self.opponent_player and self.ally_player:
                         print('Battle Time')
+                        self.prepare_battle()
                         self.parent.goto_battle_field()
             except Exception as e:
                 print(e)
@@ -188,8 +192,12 @@ class PrepareBattle(QtWidgets.QWidget):
         finally:
             return data
 
-    def rotatePlane(self, arg):
-        print('Test')
+    def prepare_battle(self):
+        for i in range(16):
+            for j in range(16):
+                for k in range(5):
+                    if self.graphics_scene.board_plane[i][j][k]:
+                        self.parent.board_plane[i][j] = True
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
