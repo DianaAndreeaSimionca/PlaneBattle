@@ -168,7 +168,7 @@ class PrepareBattle(QtWidgets.QWidget):
                     self.opponent_player = True
                     if self.opponent_player and self.ally_player:
                         print('Battle Time')
-                        #self.parent.goto_battle_field()
+                        self.parent.goto_battle_field()
             except Exception as e:
                 print(e)
 
