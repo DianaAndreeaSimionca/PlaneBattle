@@ -17,6 +17,7 @@ class BattleField(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(BattleField, self).__init__(parent)
+        self.parent = parent
 
         layout = QtWidgets.QHBoxLayout()
         self.verticalLayoutWidget = QtWidgets.QWidget()
@@ -86,7 +87,7 @@ class BattleField(QtWidgets.QWidget):
                 if type(self.parent.conn) is socket.socket:
                     self.parent.conn.send(('Fire;Row:' + row + ';Column:' + column).encode())
                 else:
-                    self.parent.conn.send(('Fire;Row:' + row + ';Column:' + column).encode())
+                    self.parent.conn.send(('Fire;Row:' + row + ';Column:' + column).encode()).fire()
         except Exception as e:
             print(e)
 
