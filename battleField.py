@@ -12,8 +12,6 @@ from Worker import Worker
 class BattleField(QtWidgets.QWidget):
     graphics_scene_defense = None
     graphics_scene_attack = None
-    opponent_player = None
-    self_player = None
 
     side = 24
 
@@ -47,6 +45,7 @@ class BattleField(QtWidgets.QWidget):
         self.graphics_scene_attack = GraphicsScene()
         self.graphicsView_2.setMouseTracking(True)
         self.graphicsView_2.setScene(self.graphics_scene_attack)
+        self.graphics_scene_attack.mousePressEvent = self.shot_bullet
         pen = QtGui.QPen(QtCore.Qt.darkCyan)
         for i in range(16):
             for j in range(16):
@@ -71,6 +70,66 @@ class BattleField(QtWidgets.QWidget):
         layout.addWidget(self.verticalLayoutWidget)
         self.setLayout(layout)
 
+        if type(self.parent.conn) is socket.socket:
+            self.wait_for_shot()
+
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.pushButton.setText(_translate("Form", "Battle"))
+
+    def shot_bullet(self, event):
+        try:
+            row = event.scenePos().y()
+            column = event.scenePos().x()
+
+            if 0 <= row < 16 and 0 <= column < 16:
+                if type(self.parent.conn) is socket.socket:
+                    self.parent.conn.send(('Fire;Row:' + row + ';Column:' + column).encode())
+                else:
+                    self.parent.conn.send(('Fire;Row:' + row + ';Column:' + column).encode())
+        except Exception as e:
+            print(e)
+
+    def wait_for_shot(self):
+        worker = Worker(self.receive_shot)
+        worker.signals.result.connect(self.print_output)
+        worker.signals.finished.connect(self.thread_complete)
+        worker.signals.progress.connect(self.progress_fn)
+
+        self.threadpool.start(worker)
+
+    def progress_fn(self, output):
+        print("%s" % output)
+
+    def print_output(self, result):
+        if result:
+            try:
+                result = result.decode('utf-8')
+                tokens = result.split(';')
+                row = tokens[1].split(':')
+                column = tokens[2].split(':')
+
+                if tokens[0] == 'Fire':
+                    pen = QtGui.QPen(QtCore.Qt.darkCyan)
+                    self.graphics_scene_defense.addLine(row + 2, column + 2, row + self.side - 2,
+                                                        column + self.side - 2, pen)
+                    self.graphics_scene_defense.addLine(row + 2, column + self.side - 2,
+                                                        row + self.side - 2, column + 2,pen)
+            except Exception as e:
+                print(e)
+
+    def thread_complete(self):
+        print("THREAD COMPLETE!")
+
+    def receive_shot(self, progress_callback):
+        try:
+            progress_callback.emit('Waiting for message. . .')
+            if type(self.parent.conn) is socket.socket:
+                data = self.parent.conn.recv(1024)
+            else:
+                data = self.parent.conn.recv(1024).fire()
+        except Exception as e:
+            data = 'NULL'
+            print(e)
+        finally:
+            return data

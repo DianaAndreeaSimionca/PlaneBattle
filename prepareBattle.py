@@ -126,7 +126,7 @@ class PrepareBattle(QtWidgets.QWidget):
         self.wait_for_message()
 
     def click_battle_now(self):
-        if self.graphics_scene.valid_plane_position == 31:
+        if self.graphics_scene.valid_plane_position != 0:
             self.ally_player = True
             try:
                 if type(self.parent.conn) is socket.socket:

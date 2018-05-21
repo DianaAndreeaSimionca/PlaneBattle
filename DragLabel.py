@@ -157,7 +157,7 @@ class DragLabel(QtWidgets.QLabel):
                 self.graphicsScene.valid_plane_position = self.graphicsScene.valid_plane_position | (1 << self.obj_id)
                 self.move(self.column_obj * self.side - self.offsetY + 12, self.row_obj * self.side - self.offsetX + 3)
             else:
-                self.graphicsScene.valid_plane_position = self.graphicsScene.valid_plane_position & (not 1 << self.obj_id)
+                self.graphicsScene.valid_plane_position = self.graphicsScene.valid_plane_position & (not(1 << self.obj_id))
                 self.move(self.old_position)
             self.remove_array_obj()
 

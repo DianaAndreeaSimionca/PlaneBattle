@@ -11,9 +11,9 @@ class MainFrame(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(MainFrame, self).__init__(parent)
         self.setWindowTitle('Planes Battle')
-        self.resize(787, 513)
+        self.resize(830, 530)
         self.setMouseTracking(True)
-        self.setFixedSize(787, 513)
+        self.setFixedSize(830, 530)
 
         self.central_widget = QtWidgets.QStackedWidget()
         self.setCentralWidget(self.central_widget)
@@ -26,10 +26,10 @@ class MainFrame(QtWidgets.QMainWindow):
         self.central_widget.setCurrentWidget(logged_in_widget)
 
     def hostClicked(self):
-        self.goto_prepare_battle()
-        #host_widget = HostWidget(self)
-        #self.central_widget.addWidget(host_widget)
-        #self.central_widget.setCurrentWidget(host_widget)
+        #self.goto_battle_field()
+        host_widget = HostWidget(self)
+        self.central_widget.addWidget(host_widget)
+        self.central_widget.setCurrentWidget(host_widget)
 
     def guestClicked(self):
         guest_widget = GuestWidget(self)
